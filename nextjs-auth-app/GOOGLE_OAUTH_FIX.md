@@ -10,7 +10,7 @@ Request details: redirect_uri=https://family-chore-calendar.vercel.app/api/auth/
 
 ### Step 1: Google Cloud Console Setup
 1. **Go to**: https://console.cloud.google.com/apis/credentials
-2. **Find OAuth Client**: `755830677010-brh4erqde1u1cg5kovjbj0v4aoiq900p.apps.googleusercontent.com`
+2. **Find OAuth Client**: `[YOUR-GOOGLE-CLIENT-ID]`
 3. **Click Edit (pencil icon)**
 
 ### Step 2: Add EXACT URLs
@@ -35,8 +35,8 @@ https://family-chore-calendar.vercel.app/api/auth/callback/google
 ### Step 4: Verify Vercel Environment Variables
 ```
 NEXTAUTH_URL=https://family-chore-calendar.vercel.app
-GOOGLE_CLIENT_ID=755830677010-brh4erqde1u1cg5kovjbj0v4aoiq900p.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=[YOUR-GOOGLE-CLIENT-ID]
+GOOGLE_CLIENT_SECRET=[YOUR-GOOGLE-CLIENT-SECRET]
 DATABASE_URL=postgresql://postgres:PASSWORD@db.qciwiasvbbsbwqrenwxk.supabase.co:5432/postgres
 NEXTAUTH_SECRET=hSx7PjeugAKPk0lWLkuDrAjwE8v132a02GM4rtZ5zuc=
 ```

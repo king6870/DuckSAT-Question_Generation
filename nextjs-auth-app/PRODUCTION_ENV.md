@@ -15,8 +15,8 @@ NEXTAUTH_SECRET="your-super-secure-secret-key-here"
 
 ### Google OAuth (Same as Local)
 ```
-GOOGLE_CLIENT_ID="755830677010-brh4erqde1u1cg5kovjbj0v4aoiq900p.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET="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"
+GOOGLE_CLIENT_ID="[YOUR-GOOGLE-CLIENT-ID]"
+GOOGLE_CLIENT_SECRET="[YOUR-GOOGLE-CLIENT-SECRET]"
 ```
 
 ## ⚠️ Common Production Issues:

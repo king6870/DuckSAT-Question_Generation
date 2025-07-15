@@ -24,8 +24,8 @@ Go to your Vercel dashboard → Project → Settings → Environment Variables:
 DATABASE_URL=postgresql://username:password@host:5432/database
 NEXTAUTH_URL=https://your-app.vercel.app
 NEXTAUTH_SECRET=hSx7PjeugAKPk0lWLkuDrAjwE8v132a02GM4rtZ5zuc=
-GOOGLE_CLIENT_ID=755830677010-brh4erqde1u1cg5kovjbj0v4aoiq900p.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=[YOUR-GOOGLE-CLIENT-ID]
+GOOGLE_CLIENT_SECRET=[YOUR-GOOGLE-CLIENT-SECRET]
 ```
 
 ## Step 3: Get PostgreSQL Database
