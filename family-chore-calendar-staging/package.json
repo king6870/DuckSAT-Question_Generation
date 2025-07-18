@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development next dev",
-    "build": "node scripts/build.js",
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "build:custom": "node scripts/build.js",
     "build:local": "prisma generate && next build",
     "build:production": "NODE_ENV=production node scripts/build.js",
     "build:admin": "node scripts/deploy-admin.js",
