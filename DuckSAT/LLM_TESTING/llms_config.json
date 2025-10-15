@@ -1,0 +1,20 @@
+{
+  "Llama-Maverick": {
+    "endpoint": "https://ai-manojwin82958ai594424696620.services.ai.azure.com/openai/v1/",
+    "model": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "format": "azure",
+    "api_version": "2024-05-01-preview"
+  },
+  "gork-3": {
+    "endpoint": "https://ai-manojwin82958ai594424696620.services.ai.azure.com/openai/v1",
+    "model": "grok-3",
+    "format": "azure",
+    "api_version": "2024-05-01-preview"
+  },
+  "gpt-5": {
+    "endpoint": "https://ai-manojwin82958ai594424696620.cognitiveservices.azure.com/",
+    "model": "gpt-5",
+    "format": "azure",
+    "api_version": "2024-12-01-preview"
+  }
+}

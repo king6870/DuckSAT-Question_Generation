@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SAT Geometry Question 1</title>
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+.question { background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+.diagram { margin: 20px 0; }
+</style>
+</head>
+<body>
+<h1>SAT Geometry Question 1</h1>
+<div class="question">
+<h2>Question:</h2>
+<p>In the diagram described, PT is tangent to the circle at T, and PAB is a secant through the circle with A between P and B. If PA = 6, PB = 24, and OT = 5, what is the length of OP?
+
+A) 10
+B) 12
+C) 13
+D) 18</p>
+<h2>Explanation:</h2>
+<p>- Because PT is tangent to the circle at T and PAB is a secant through the circle, the tangent-secant theorem (power of a point) applies: PT^2 = PA × PB.
+- Compute PT: PT^2 = 6 × 24 = 144, so PT = 12.
+- The radius to the point of tangency is perpendicular to the tangent line, so triangle OTP is a right triangle with legs OT = 5 and PT = 12.
+- Use the Pythagorean theorem to find OP: OP^2 = OT^2 + PT^2 = 5^2 + 12^2 = 25 + 144 = 169, so OP = 13.</p>
+<h2>Answers:</h2>
+<p>C) 13</p>
+</div>
+<div class="diagram">
+<h2>Diagram:</h2>
+<div id="vis"></div>
+</div>
+<script>
+const spec = {"$schema": "https://vega.github.io/schema/vega/v5.json", "width": 640, "height": 420, "padding": 10, "background": "white", "data": [{"name": "circle", "values": [{"cx": 250, "cy": 220, "r": 120}]}, {"name": "tangentLine", "values": [{"x": 520, "y": 160}, {"x": 324.303, "y": 314.336}]}, {"name": "secantLine", "values": [{"x": 520, "y": 160}, {"x": -162.64, "y": 311.655}]}, {"name": "radiusLine", "values": [{"x": 250, "y": 220}, {"x": 324.303, "y": 314.336}]}, {"name": "points", "values": [{"id": "O", "x": 250, "y": 220}, {"id": "P", "x": 520, "y": 160}, {"id": "T", "x": 324.303, "y": 314.336}, {"id": "A", "x": 367.024, "y": 194.002}, {"id": "B", "x": 132.976, "y": 245.998}]}, {"name": "rightAngle", "values": [{"x": 316.873, "y": 304.902}, {"x": 326.299, "y": 297.463}, {"x": 333.729, "y": 306.897}]}, {"name": "labels", "values": [{"text": "O", "x": 250, "y": 220, "dx": -12, "dy": -10}, {"text": "P", "x": 520, "y": 160, "dx": 8, "dy": -8}, {"text": "T", "x": 324.303, "y": 314.336, "dx": 6, "dy": -8}, {"text": "A", "x": 367.024, "y": 194.002, "dx": 8, "dy": -8}, {"text": "B", "x": 132.976, "y": 245.998, "dx": -12, "dy": -8}]}, {"name": "lengthLabels", "values": [{"text": "PA = 6", "x": 443.512, "y": 177.001, "dx": 0, "dy": -6}, {"text": "PB = 24", "x": 326.488, "y": 203, "dx": 0, "dy": -6}, {"text": "OT = 5", "x": 287.152, "y": 267.168, "dx": 6, "dy": -6}]}, {"name": "note", "values": [{"text": "Not drawn to scale", "x": 20, "y": 400}]}], "marks": [{"type": "arc", "from": {"data": "circle"}, "encode": {"enter": {"x": {"field": "cx"}, "y": {"field": "cy"}, "startAngle": {"value": 0}, "endAngle": {"value": 6.283185307179586}, "innerRadius": {"field": "r"}, "outerRadius": {"field": "r"}, "stroke": {"value": "#000"}, "strokeWidth": {"value": 2}, "fill": {"value": null}}}}, {"type": "line", "from": {"data": "secantLine"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "stroke": {"value": "#555"}, "strokeWidth": {"value": 2}}}}, {"type": "line", "from": {"data": "tangentLine"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "stroke": {"value": "#000"}, "strokeWidth": {"value": 2}}}}, {"type": "line", "from": {"data": "radiusLine"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "stroke": {"value": "#888"}, "strokeDash": {"value": [4, 3]}, "strokeWidth": {"value": 2}}}}, {"type": "line", "from": {"data": "rightAngle"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "stroke": {"value": "#000"}, "strokeWidth": {"value": 2}}}}, {"type": "symbol", "from": {"data": "points"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "size": {"value": 50}, "fill": {"value": "#000"}}}}, {"type": "text", "from": {"data": "labels"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "dx": {"field": "dx"}, "dy": {"field": "dy"}, "text": {"field": "text"}, "fontSize": {"value": 14}, "fill": {"value": "#000"}}}}, {"type": "text", "from": {"data": "lengthLabels"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "dx": {"field": "dx"}, "dy": {"field": "dy"}, "text": {"field": "text"}, "fontSize": {"value": 12}, "fill": {"value": "#000"}, "fontStyle": {"value": "italic"}}}}, {"type": "text", "from": {"data": "note"}, "encode": {"enter": {"x": {"field": "x"}, "y": {"field": "y"}, "text": {"field": "text"}, "fontSize": {"value": 12}, "fill": {"value": "#444"}}}}]};
+const view = new vega.View(vega.parse(spec)).renderer('canvas').initialize('#vis').run();
+</script>
+</body>
+</html>

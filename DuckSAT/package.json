@@ -1,0 +1,7 @@
+{
+  "name": "ducksat-root",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "npm start --prefix ducksat-app"
+  }
+}
