@@ -509,7 +509,12 @@ Database Schema for SAT Questions:
                         continue
                     print(f"LLM 1 ({models[0]}) Response:\n{result1}")
 
-                    content, question, explanation, options, correct_answer = parse_llm1(result1, category)
+                    parsed = parse_llm1(result1, category)
+                    content = parsed["content"]
+                    question = parsed["question"]
+                    explanation = parsed["explanation"]
+                    options = parsed["options"]
+                    correct_answer = parsed["correct_answer"]
                     answers = json.dumps(options)  # Store options as JSON string
 
                     # Handle different content types
@@ -824,7 +829,12 @@ def generate_questions(category, subtopic, num_questions=1, models=None, tempera
                 continue
             print(f"LLM 1 ({models[0]}) Response:\n{result1}")
 
-            content, question, explanation, options, correct_answer = parse_llm1(result1, category)
+            parsed = parse_llm1(result1, category)
+            content = parsed["content"]
+            question = parsed["question"]
+            explanation = parsed["explanation"]
+            options = parsed["options"]
+            correct_answer = parsed["correct_answer"]
             answers = json.dumps(options)  # Store options as JSON string
 
             # Handle different content types
