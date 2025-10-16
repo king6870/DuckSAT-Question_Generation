@@ -153,16 +153,16 @@ def store_question_in_ducksat(question_data):
         # Map category to moduleType and topic
         if category == 'Math':
             moduleType = 'math'
-            topic_name = 'Math'
+            topic_name = 'Geometry and Trigonometry'  # Use the actual topic name from seed
             topic_desc = 'SAT Math topics'
         elif category == 'Reading':
             moduleType = 'reading-writing'
-            topic_name = 'Reading'
-            topic_desc = 'SAT Reading topics'
+            topic_name = 'Reading Comprehension'  # Use the actual topic name from seed
+            topic_desc = 'SAT Reading and Writing topics'
         else:  # Writing
             moduleType = 'reading-writing'
-            topic_name = 'Writing'
-            topic_desc = 'SAT Writing and Language topics'
+            topic_name = 'Writing and Language'  # Use the actual topic name from seed
+            topic_desc = 'SAT Reading and Writing topics'
 
         # Parse answers
         options, correct_answer = parse_answers_to_options(question_data['answers'])
@@ -195,12 +195,11 @@ def store_question_in_ducksat(question_data):
         cur.execute("SELECT id FROM subtopics WHERE name = %s AND \"topicId\" = %s", (subtopic, topic_id))
         subtopic_row = cur.fetchone()
         if not subtopic_row:
+            subtopic_id = str(uuid.uuid4())
             cur.execute("""
-                INSERT INTO subtopics ("topicId", name, description)
-                VALUES (%s, %s, %s)
-                RETURNING id
-            """, (topic_id, subtopic, f'{subtopic_raw} questions'))
-            subtopic_id = cur.fetchone()[0]
+                INSERT INTO subtopics (id, "topicId", name, description, "targetQuestions", "currentCount", "isActive", "createdAt", "updatedAt")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            """, (subtopic_id, topic_id, subtopic, f'{subtopic_raw} questions', 100, 0, True))
         else:
             subtopic_id = subtopic_row[0]
 
@@ -227,21 +226,20 @@ def store_question_in_ducksat(question_data):
         time_estimate = 120 if category == 'Math' else 90 if category == 'Reading' else 60
 
         # Create question
+        question_id = str(uuid.uuid4())
         cur.execute("""
             INSERT INTO questions (
-                "subtopicId", "moduleType", difficulty, category, subtopic,
+                id, "subtopicId", "moduleType", difficulty, category, subtopic,
                 question, options, "correctAnswer", explanation,
-                "imageUrl", "chartData", "timeEstimate", source, tags
+                "imageUrl", "chartData", "timeEstimate", source, tags, "isActive", "createdAt", "updatedAt"
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
         """, (
-            subtopic_id, moduleType, difficulty, topic_name, subtopic,
+            question_id, subtopic_id, moduleType, difficulty, topic_name, subtopic,
             question_data['question'], json.dumps(options), correct_answer, explanation,
             image_url, json.dumps(chartData) if chartData else None, time_estimate,
-            'LLM TESTING Generated', [difficulty, category.lower(), subtopic]
+            'LLM TESTING Generated', [difficulty, category.lower(), subtopic], True
         ))
-        question_id = cur.fetchone()[0]
 
         # Update subtopic count
         cur.execute("""
