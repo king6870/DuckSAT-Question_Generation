@@ -136,10 +136,17 @@ def store_question_in_ducksat(question_data):
     from dotenv import load_dotenv
     import json
 
-    load_dotenv()
+    # Load environment variables from the current directory
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    load_dotenv(dotenv_path=env_path)
+    
     database_url = os.getenv('DATABASE_URL')
     if not database_url:
-        print("DATABASE_URL not found, skipping database storage")
+        print("❌ DATABASE_URL not found in .env file, skipping database storage")
+        return None
+    
+    if database_url == "your_neon_database_url_here":
+        print("❌ Please update DATABASE_URL in .env file with your actual Neon database URL")
         return None
 
     conn = None
@@ -252,8 +259,13 @@ def store_question_in_ducksat(question_data):
         print(f"✅ Question stored in DuckSAT database with ID: {question_id}")
         return question_id
 
+    except psycopg2.Error as e:
+        print(f"❌ Database error: {e}")
+        if conn:
+            conn.rollback()
+        return None
     except Exception as e:
-        print(f"Failed to store question in database: {e}")
+        print(f"❌ Failed to store question in database: {e}")
         if conn:
             conn.rollback()
         return None

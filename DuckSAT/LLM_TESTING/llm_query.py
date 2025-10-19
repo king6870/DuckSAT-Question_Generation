@@ -25,15 +25,17 @@ parser.add_argument('--model3', type=str, help='Model name for LLM3 (checking)')
 parser.add_argument('--temperature', type=float, default=0.7, help='Temperature for LLM queries (default: 0.7)')
 parser.add_argument('--max_tokens', type=int, default=16384, help='Max tokens for LLM queries (default: 16384)')
 parser.add_argument('--num_questions', type=int, default=5, help='Number of questions to generate (default: 5)')
-parser.add_argument('--delay_minutes', type=float, default=0, help='Delay in minutes between questions (default: 0)')
+parser.add_argument('--delay_minutes', type=float, default=1, help='Delay in minutes between questions (default: 1)')
 parser.add_argument('--category', type=str, help='SAT category (Reading, Writing, Math)')
 parser.add_argument('--subtopic', type=str, help='SAT subtopic')
 parser.add_argument('--interactive', action='store_true', help='Run in interactive mode')
+parser.add_argument('--batch', action='store_true', help='Run in batch mode to generate all questions (3 per subtopic)')
 
 args = parser.parse_args()
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from LLM_TESTING/.env file explicitly
+ENV_PATH = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path=ENV_PATH)
 
 # Setup module logger
 logger = logging.getLogger(__name__)
@@ -427,7 +429,7 @@ def interactive_mode():
 
     while True:
         try:
-            num_questions_per_subtopic = int(input("Enter number of questions per subtopic (default 1): ") or 1)
+            num_questions_per_subtopic = int(input("Enter number of questions per subtopic (default 3): ") or 3)
             if num_questions_per_subtopic > 0:
                 break
             else:
@@ -437,7 +439,7 @@ def interactive_mode():
 
     while True:
         try:
-            delay_minutes = float(input("Enter delay in minutes between questions (default 0): ") or 0)
+            delay_minutes = float(input("Enter delay in minutes between questions (default 1): ") or 1)
             if delay_minutes >= 0:
                 break
             else:
@@ -628,13 +630,16 @@ Database Schema for SAT Questions:
                             'subtopic': subtopic,
                             'content': content
                         }
+                        print(f"🔄 Saving question to DuckSAT database...")
                         question_id = store_question_in_ducksat(storage_data)
                         if question_id:
-                            print(f"Stored in database with ID: {question_id}")
+                            print(f"✅ Successfully stored in database with ID: {question_id}")
                             question_data['question_id'] = question_id  # Store ID for reference
                         else:
-                            print("Failed to store in database, skipping question.")
+                            print("❌ Failed to store in database, skipping question.")
                             continue
+                    else:
+                        print("⚠️  DuckSAT integration not available, skipping database storage.")
 
                     break
 
@@ -728,6 +733,15 @@ const view{i} = new vega.View(vega.parse(spec{i})).renderer('canvas').initialize
         for category, subtopics in sat_subtopics.items():
             category_count = sum(1 for q in questions_list if q['category'] == category)
             print(f"  {category}: {category_count} questions")
+        
+        # Show database storage summary
+        if DUCKSAT_INTEGRATION_AVAILABLE:
+            saved_count = sum(1 for q in questions_list if 'question_id' in q)
+            print(f"\n📊 Database Storage Summary:")
+            print(f"  ✅ Successfully saved: {saved_count}/{len(questions_list)} questions")
+            if saved_count < len(questions_list):
+                print(f"  ❌ Failed to save: {len(questions_list) - saved_count} questions")
+        
         webbrowser.open(f'file://{os.path.abspath(filename)}')
     else:
         print("No questions were successfully generated.")
@@ -946,13 +960,16 @@ def generate_questions(category, subtopic, num_questions=1, models=None, tempera
                     'subtopic': subtopic,
                     'content': content
                 }
+                print(f"🔄 Saving question to DuckSAT database...")
                 question_id = store_question_in_ducksat(storage_data)
                 if question_id:
-                    print(f"Stored in database with ID: {question_id}")
+                    print(f"✅ Successfully stored in database with ID: {question_id}")
                     question_data['question_id'] = question_id  # Store ID for reference
                 else:
-                    print("Failed to store in database, skipping question.")
+                    print("❌ Failed to store in database, skipping question.")
                     continue
+            else:
+                print("⚠️  DuckSAT integration not available, skipping database storage.")
 
             break
 
@@ -966,8 +983,96 @@ def generate_questions(category, subtopic, num_questions=1, models=None, tempera
 
     return {'questions': questions_list}
 
+def batch_generation():
+    """
+    Generate 90 questions (3 per subtopic) across all SAT categories using default settings.
+    """
+    llms_config = load_llms_config()
+    if not llms_config:
+        print("No models configured in llms_config.json")
+        return
+
+    model_list = list(llms_config.keys())
+    if len(model_list) < 3:
+        print("Need at least 3 models configured.")
+        return
+
+    # Use first 3 models as defaults
+    models = model_list[:3]
+    temperature = 0.7
+    max_tokens = 16384
+    num_questions_per_subtopic = 3
+    delay_minutes = 1
+
+    # SAT Subtopics
+    sat_subtopics = {
+        "Reading": [
+            "Comprehension",
+            "Vocabulary in Context",
+            "Inference",
+            "Main Idea & Supporting Details",
+            "Text Structure & Purpose",
+            "Rhetorical Effect",
+            "Data Interpretation (Charts, Tables)"
+        ],
+        "Writing": [
+            "Sentence Structure",
+            "Grammar & Usage",
+            "Punctuation",
+            "Conciseness & Clarity",
+            "Logical Flow",
+            "Tone & Style",
+            "Transitions & Organization"
+        ],
+        "Math": [
+            "Linear Equations",
+            "Inequalities",
+            "Systems of Equations",
+            "Quadratic Equations",
+            "Polynomials",
+            "Rational Expressions",
+            "Exponents & Radicals",
+            "Ratios & Proportions",
+            "Percentages",
+            "Statistics & Probability",
+            "Graph Interpretation",
+            "Geometry – Angles",
+            "Geometry – Triangles",
+            "Geometry – Circles",
+            "Geometry – Coordinate Geometry",
+            "Trigonometry – Sine, Cosine, Tangent"
+        ]
+    }
+
+    print("Starting batch generation of 90 questions (3 per subtopic)...")
+    print(f"Using models: {models}")
+    print(f"Temperature: {temperature}, Max tokens: {max_tokens}, Delay: {delay_minutes} minutes")
+
+    total_questions = 0
+    for category, subtopics in sat_subtopics.items():
+        for subtopic in subtopics:
+            print(f"\nGenerating 3 questions for {category} - {subtopic}...")
+            result = generate_questions(
+                category=category,
+                subtopic=subtopic,
+                num_questions=num_questions_per_subtopic,
+                models=models,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                delay_minutes=delay_minutes
+            )
+            if 'questions' in result:
+                total_questions += len(result['questions'])
+                print(f"Generated {len(result['questions'])} questions for {subtopic}")
+            else:
+                print(f"Error generating questions for {subtopic}: {result.get('error', 'Unknown error')}")
+
+    print(f"\nBatch generation complete! Total questions generated: {total_questions}")
+
 if __name__ == '__main__':
-    if args.interactive:
+    if args.batch:
+        batch_generation()
+    elif args.interactive:
         interactive_mode()
     else:
         result = generate_questions(
